@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Interactive Math Question Generator for students and teachers.">
+<title>Math Question Generator</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at 15% 20%, rgba(86,214,255,.15), transparent 30%),
+            radial-gradient(circle at 85% 80%, rgba(139,124,255,.16), transparent 30%),
+            #07111f;
+        color: #f5f7ff;
+        padding: 25px 15px;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 900px;
+        margin: auto;
+    }
+
+    header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .logo {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 15px;
+        border-radius: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        background: linear-gradient(135deg, #56d6ff, #8b7cff);
+        box-shadow: 0 10px 35px rgba(86,214,255,.22);
+    }
+
+    h1 {
+        font-size: clamp(28px, 6vw, 46px);
+        margin-bottom: 8px;
+        background: linear-gradient(90deg, #56d6ff, #8b7cff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+        color: #aab6ca;
+        font-size: 15px;
+    }
+
+    .card {
+        background: rgba(13, 26, 43, .82);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 24px;
+        padding: 25px;
+        box-shadow: 0 20px 60px rgba(0,0,0,.28);
+        backdrop-filter: blur(12px);
+    }
+
+    .setup-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .field.full {
+        grid-column: 1 / -1;
+    }
+
+    label {
+        color: #dce5f5;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    select,
+    input {
+        width: 100%;
+        padding: 14px 15px;
+        border-radius: 13px;
+        border: 1px solid rgba(255,255,255,.1);
+        background: #102239;
+        color: white;
+        font-size: 15px;
+        outline: none;
+    }
+
+    select:focus,
+    input:focus {
+        border-color: #56d6ff;
+        box-shadow: 0 0 0 3px rgba(86,214,255,.1);
+    }
+
+    .button-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 22px;
+    }
+
+    button {
+        border: none;
+        cursor: pointer;
+        border-radius: 13px;
+        padding: 14px 20px;
+        font-size: 15px;
+        font-weight: bold;
+        transition: .2s ease;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+    }
+
+    .primary {
+        flex: 1;
+        color: #06101c;
+        background: linear-gradient(135deg, #56d6ff, #8b7cff);
+        box-shadow: 0 10px 25px rgba(86,214,255,.18);
+    }
+
+    .secondary {
+        background: #1a2b43;
+        color: white;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    /* Quiz */
+
+    .quiz-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+    }
+
+    .progress-text {
+        color: #aebbd0;
+        font-size: 14px;
+    }
+
+    .score-box {
+        padding: 8px 13px;
+        border-radius: 10px;
+        background: #102239;
+        color: #56d6ff;
+        font-weight: bold;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #172941;
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .progress {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #56d6ff, #8b7cff);
+        transition: width .3s ease;
+    }
+
+    .question-number {
+        color: #56d6ff;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 12px;
+    }
+
+    .question {
+        font-size: clamp(25px, 5vw, 38px);
+        line-height: 1.35;
+        margin-bottom: 25px;
+        word-break: break-word;
+    }
+
+    .answer-area {
+        display: flex;
+        gap: 10px;
+    }
+
+    .answer-area input {
+        flex: 1;
+        font-size: 18px;
+    }
+
+    .check-btn {
+        background: linear-gradient(135deg, #56d6ff, #8b7cff);
+        color: #06101c;
+        min-width: 120px;
+    }
+
+    .feedback {
+        min-height: 28px;
+        margin-top: 18px;
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    .correct {
+        color: #5ee7a2;
+    }
+
+    .wrong {
+        color: #ff7d91;
+    }
+
+    .explanation {
+        margin-top: 10px;
+        color: #aebbd0;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    /* Result */
+
+    .result {
+        text-align: center;
+    }
+
+    .result-icon {
+        font-size: 65px;
+        margin-bottom: 15px;
+    }
+
+    .result h2 {
+        font-size: 32px;
+        margin-bottom: 8px;
+    }
+
+    .result-message {
+        color: #aebbd0;
+        margin-bottom: 25px;
+    }
+
+    .result-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 25px 0;
+    }
+
+    .stat {
+        padding: 18px 10px;
+        background: #102239;
+        border-radius: 15px;
+    }
+
+    .stat-value {
+        font-size: 25px;
+        font-weight: bold;
+        color: #56d6ff;
+    }
+
+    .stat-label {
+        margin-top: 5px;
+        color: #9eabc0;
+        font-size: 12px;
+    }
+
+    .review {
+        text-align: left;
+        margin-top: 25px;
+    }
+
+    .review h3 {
+        margin-bottom: 12px;
+    }
+
+    .review-item {
+        padding: 14px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        background: #102239;
+        border-left: 4px solid #ff7d91;
+    }
+
+    .review-item strong {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .review-answer {
+        color: #aebbd0;
+        font-size: 14px;
+    }
+
+    footer {
+        text-align: center;
+        color: #697890;
+        font-size: 12px;
+        margin-top: 22px;
+    }
+
+    @media (max-width: 650px) {
+        body {
+            padding: 15px 10px;
+        }
+
+        .card {
+            padding: 19px;
+            border-radius: 20px;
+        }
+
+        .setup-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .field.full {
+            grid-column: auto;
+        }
+
+        .button-row,
+        .answer-area {
+            flex-direction: column;
+        }
+
+        .check-btn {
+            width: 100%;
+        }
+
+        .result-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <div class="logo">∑</div>
+        <h1>Math Question Generator</h1>
+        <p>Practice mathematics • Build confidence • Improve your skills</p>
+    </header>
+
+    <!-- SETUP SCREEN -->
+    <section id="setupScreen" class="card">
+
+        <div class="setup-grid">
+
+            <div class="field">
+                <label for="topic">Mathematics Topic</label>
+                <select id="topic">
+                    <option value="mixed">Mixed Mathematics</option>
+                    <option value="addition">Addition</option>
+                    <option value="subtraction">Subtraction</option>
+                    <option value="multiplication">Multiplication</option>
+                    <option value="division">Division</option>
+                    <option value="fractions">Fractions</option>
+                    <option value="percentage">Percentages</option>
+                    <option value="equation">Linear Equations</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="difficulty">Difficulty Level</label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="questionCount">Number of Questions</label>
+                <select id="questionCount">
+                    <option value="5">5 Questions</option>
+                    <option value="10" selected>10 Questions</option>
+                    <option value="15">15 Questions</option>
+                    <option value="20">20 Questions</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="studentName">Student Name</label>
+                <input
+                    type="text"
+                    id="studentName"
+                    placeholder="Enter student name"
+                    maxlength="30"
+                >
+            </div>
+
+        </div>
+
+        <div class="button-row">
+            <button class="primary" onclick="startQuiz()">
+                🚀 Start Practice
+            </button>
+        </div>
+
+    </section>
+
+
+    <!-- QUIZ SCREEN -->
+    <section id="quizScreen" class="card hidden">
+
+        <div class="quiz-header">
+            <div class="progress-text" id="progressText">
+                Question 1 of 10
+            </div>
+
+            <div class="score-box">
+                Score: <span id="liveScore">0</span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div class="question-number" id="questionNumber">
+            QUESTION 1
+        </div>
+
+        <div class="question" id="question">
+            5 + 7 = ?
+        </div>
+
+        <div class="answer-area">
+            <input
+                type="text"
+                id="answer"
+                placeholder="Type your answer"
+                autocomplete="off"
+            >
+
+            <button class="check-btn" id="checkButton" onclick="checkAnswer()">
+                Check Answer
+            </button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+
+        <div id="explanation" class="explanation"></div>
+
+        <div class="button-row">
+            <button
+                id="nextButton"
+                class="primary hidden"
+                onclick="nextQuestion()">
+                Next Question →
+            </button>
+
+            <button
+                class="secondary"
+                onclick="restartQuiz()">
+                Restart
+            </button>
+        </div>
+
+    </section>
+
+
+    <!-- RESULT SCREEN -->
+    <section id="resultScreen" class="card hidden">
+
+        <div class="result">
+
+            <div class="result-icon" id="resultIcon">🎉</div>
+
+            <h2 id="resultTitle">Great Work!</h2>
+
+            <p class="result-message" id="resultMessage">
+                Well done!
+            </p>
+
+            <div class="result-stats">
+
+                <div class="stat">
+                    <div class="stat-value" id="finalScore">0</div>
+                    <div class="stat-label">CORRECT</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-value" id="finalTotal">10</div>
+                    <div class="stat-label">TOTAL</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-value" id="finalPercentage">0%</div>
+                    <div class="stat-label">PERCENTAGE</div>
+                </div>
+
+            </div>
+
+            <div id="reviewSection" class="review hidden">
+                <h3>Questions to Review</h3>
+                <div id="reviewList"></div>
+            </div>
+
+            <div class="button-row">
+                <button class="primary" onclick="restartQuiz()">
+                    🔄 Practice Again
+                </button>
+            </div>
+
+        </div>
+
+    </section>
+
+    <footer>
+        Math Question Generator • Built with HTML, CSS & JavaScript
+    </footer>
+
+</div>
+
+
+<script>
+
+let questions = [];
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+let wrongAnswers = [];
+
+const topicNames = {
+    mixed: "Mixed Mathematics",
+    addition: "Addition",
+    subtraction: "Subtraction",
+    multiplication: "Multiplication",
+    division: "Division",
+    fractions: "Fractions",
+    percentage: "Percentages",
+    equation: "Linear Equations"
+};
+
+
+/* ---------------- RANDOM HELPERS ---------------- */
+
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+
+    while (b !== 0) {
+        let temp = b;
+        b = a % b;
+        a = temp;
+    }
+
+    return a;
+}
+
+function simplifyFraction(numerator, denominator) {
+
+    const divisor = gcd(numerator, denominator);
+
+    numerator /= divisor;
+    denominator /= divisor;
+
+    if (denominator < 0) {
+        numerator *= -1;
+        denominator *= -1;
+    }
+
+    return {
+        numerator,
+        denominator,
+        text: `${numerator}/${denominator}`
+    };
+}
+
+
+/* ---------------- QUESTION GENERATORS ---------------- */
+
+function generateAddition(level) {
+
+    let max;
+
+    if (level === "easy") max = 50;
+    else if (level === "medium") max = 500;
+    else max = 5000;
+
+    let a = randomInt(1, max);
+    let b = randomInt(1, max);
+
+    return {
+        text: `${a} + ${b} = ?`,
+        answer: a + b,
+        explanation: `${a} + ${b} = ${a + b}`
+    };
+}
+
+
+function generateSubtraction(level) {
+
+    let max;
+
+    if (level === "easy") max = 50;
+    else if (level === "medium") max = 500;
+    else max = 5000;
+
+    let a = randomInt(1, max);
+    let b = randomInt(1, max);
+
+    if (b > a) {
+        [a, b] = [b, a];
+    }
+
+    return {
+        text: `${a} − ${b} = ?`,
+        answer: a - b,
+        explanation: `${a} − ${b} = ${a - b}`
+    };
+}
+
+
+function generateMultiplication(level) {
+
+    let max;
+
+    if (level === "easy") max = 10;
+    else if (level === "medium") max = 20;
+    else max = 50;
+
+    let a = randomInt(2, max);
+    let b = randomInt(2, max);
+
+    return {
+        text: `${a} × ${b} = ?`,
+        answer: a * b,
+        explanation: `${a} × ${b} = ${a * b}`
+    };
+}
+
+
+function generateDivision(level) {
+
+    let max;
+
+    if (level === "easy") max = 10;
+    else if (level === "medium") max = 20;
+    else max = 50;
+
+    let divisor = randomInt(2, max);
+    let answer = randomInt(2, max);
+    let dividend = divisor * answer;
+
+    return {
+        text: `${dividend} ÷ ${divisor} = ?`,
+        answer: answer,
+        explanation: `${dividend} ÷ ${divisor} = ${answer}`
+    };
+}
+
+
+function generateFraction(level) {
+
+    let denominator;
+    let numerator;
+
+    if (level === "easy") {
+        denominator = randomInt(2, 8);
+        numerator = randomInt(1, denominator - 1);
+    }
+    else if (level === "medium") {
+        denominator = randomInt(3, 12);
+        numerator = randomInt(1, denominator - 1);
+    }
+    else {
+        denominator = randomInt(4, 20);
+        numerator = randomInt(1, denominator - 1);
+    }
+
+    let secondDenominator = randomInt(2, 10);
+    let secondNumerator = randomInt(1, secondDenominator - 1);
+
+    const operation = Math.random() < 0.5 ? "+" : "−";
+
+    let resultNumerator;
+    let resultDenominator;
+
+    if (operation === "+") {
+
+        resultNumerator =
+            numerator * secondDenominator +
+            secondNumerator * denominator;
+
+        resultDenominator =
+            denominator * secondDenominator;
+
+    } else {
+
+        resultNumerator =
+            numerator * secondDenominator -
+            secondNumerator * denominator;
+
+        resultDenominator =
+            denominator * secondDenominator;
+    }
+
+    const result = simplifyFraction(
+        resultNumerator,
+        resultDenominator
+    );
+
+    return {
+        text: `${numerator}/${denominator} ${operation} ${secondNumerator}/${secondDenominator} = ?`,
+        answer: result.text,
+        fractionAnswer: true,
+        explanation:
+            `${numerator}/${denominator} ${operation} ` +
+            `${secondNumerator}/${secondDenominator} = ${result.text}`
+    };
+}
+
+
+function generatePercentage(level) {
+
+    let percentage;
+    let number;
+
+    if (level === "easy") {
+        percentage = [10, 20, 25, 50][randomInt(0, 3)];
+        number = randomInt(2, 20) * 10;
+    }
+    else if (level === "medium") {
+        percentage = randomInt(1, 9) * 5;
+        number = randomInt(10, 100) * 10;
+    }
+    else {
+        percentage = randomInt(5, 95);
+        number = randomInt(20, 500);
+    }
+
+    const answer = percentage * number / 100;
+
+    return {
+        text: `What is ${percentage}% of ${number}?`,
+        answer: answer,
+        explanation:
+            `${percentage}% × ${number} = ${answer}`
+    };
+}
+
+
+function generateEquation(level) {
+
+    let x;
+    let a;
+    let b;
+
+    if (level === "easy") {
+
+        a = randomInt(2, 10);
+        x = randomInt(1, 20);
+        b = randomInt(1, 20);
+
+        const c = a * x + b;
+
+        return {
+            text: `${a}x + ${b} = ${c}. Find x.`,
+            answer: x,
+            explanation:
+                `${a}x = ${c} − ${b} = ${c - b}<br>` +
+                `x = ${c - b} ÷ ${a} = ${x}`
+        };
+    }
+
+    if (level === "medium") {
+
+        a = randomInt(2, 15);
+        x = randomInt(1, 30);
+        b = randomInt(1, 30);
+
+        const c = a * x + b;
+
+        return {
+            text: `${a}x + ${b} = ${c}. Find x.`,
+            answer: x,
+            explanation:
+                `${a}x = ${c} − ${b} = ${c - b}<br>` +
+                `x = ${c - b} ÷ ${a} = ${x}`
+        };
+    }
+
+    a = randomInt(3, 20);
+    x = randomInt(1, 50);
+    b = randomInt(1, 50);
+
+    const c = a * x - b;
+
+    return {
+        text: `${a}x − ${b} = ${c}. Find x.`,
+        answer: x,
+        explanation:
+            `${a}x = ${c} + ${b} = ${c + b}<br>` +
+            `x = ${c + b} ÷ ${a} = ${x}`
+    };
+}
+
+
+/* ---------------- GENERATOR ---------------- */
+
+function generateQuestion(topic, level) {
+
+    if (topic === "addition")
+        return generateAddition(level);
+
+    if (topic === "subtraction")
+        return generateSubtraction(level);
+
+    if (topic === "multiplication")
+        return generateMultiplication(level);
+
+    if (topic === "division")
+        return generateDivision(level);
+
+    if (topic === "fractions")
+        return generateFraction(level);
+
+    if (topic === "percentage")
+        return generatePercentage(level);
+
+    if (topic === "equation")
+        return generateEquation(level);
+
+    const topics = [
+        "addition",
+        "subtraction",
+        "multiplication",
+        "division",
+        "fractions",
+        "percentage",
+        "equation"
+    ];
+
+    const randomTopic =
+        topics[randomInt(0, topics.length - 1)];
+
+    return generateQuestion(randomTopic, level);
+}
+
+
+/* ---------------- START QUIZ ---------------- */
+
+function startQuiz() {
+
+    const topic = document.getElementById("topic").value;
+    const level = document.getElementById("difficulty").value;
+    const count =
+        Number(document.getElementById("questionCount").value);
+
+    questions = [];
+    currentQuestion = 0;
+    score = 0;
+    wrongAnswers = [];
+
+    for (let i = 0; i < count; i++) {
+
+        questions.push(
+            generateQuestion(topic, level)
+        );
+    }
+
+    document.getElementById("setupScreen")
+        .classList.add("hidden");
+
+    document.getElementById("resultScreen")
+        .classList.add("hidden");
+
+    document.getElementById("quizScreen")
+        .classList.remove("hidden");
+
+    document.getElementById("liveScore").textContent = "0";
+
+    showQuestion();
+}
+
+
+/* ---------------- SHOW QUESTION ---------------- */
+
+function showQuestion() {
+
+    answered = false;
+
+    const q = questions[currentQuestion];
+
+    document.getElementById("questionNumber")
+        .textContent =
+        `QUESTION ${currentQuestion + 1}`;
+
+    document.getElementById("progressText")
+        .textContent =
+        `Question ${currentQuestion + 1} of ${questions.length}`;
+
+    document.getElementById("question")
+        .innerHTML = q.text;
+
+    document.getElementById("answer").value = "";
+
+    document.getElementById("feedback").textContent = "";
+
+    document.getElementById("feedback").className =
+        "feedback";
+
+    document.getElementById("explanation").innerHTML = "";
+
+    document.getElementById("checkButton")
+        .classList.remove("hidden");
+
+    document.getElementById("nextButton")
+        .classList.add("hidden");
+
+    const percentage =
+        (currentQuestion / questions.length) * 100;
+
+    document.getElementById("progress")
+        .style.width = `${percentage}%`;
+
+    document.getElementById("answer").focus();
+}
+
+
+/* ---------------- CHECK ANSWER ---------------- */
+
+function checkAnswer() {
+
+    if (answered) return;
+
+    const input =
+        document.getElementById("answer").value.trim();
+
+    if (input === "") {
+
+        document.getElementById("feedback").innerHTML =
+            "⚠️ Please enter an answer.";
+
+        document.getElementById("feedback").className =
+            "feedback wrong";
+
+        return;
+    }
+
+    const q = questions[currentQuestion];
+
+    let isCorrect = false;
+
+    if (q.fractionAnswer) {
+
+        const userFraction = parseFraction(input);
+
+        if (userFraction) {
+
+            const correctFraction =
+                parseFraction(q.answer);
+
+            if (
+                userFraction.numerator ===
+                correctFraction.numerator &&
+                userFraction.denominator ===
+                correctFraction.denominator
+            ) {
+                isCorrect = true;
+            }
+        }
+
+    } else {
+
+        const userNumber =
+            Number(input);
+
+        if (
+            !isNaN(userNumber) &&
+            Math.abs(userNumber - Number(q.answer)) < 0.000001
+        ) {
+            isCorrect = true;
+        }
+    }
+
+    answered = true;
+
+    if (isCorrect) {
+
+        score++;
+
+        document.getElementById("liveScore")
+            .textContent = score;
+
+        document.getElementById("feedback").innerHTML =
+            "✅ Correct! Excellent work!";
+
+        document.getElementById("feedback").className =
+            "feedback correct";
+
+    } else {
+
+        wrongAnswers.push({
+            question: q.text,
+            userAnswer: input,
+            correctAnswer: q.answer
+        });
+
+        document.getElementById("feedback").innerHTML =
+            `❌ Not quite. The correct answer is <strong>${q.answer}</strong>.`;
+
+        document.getElementById("feedback").className =
+            "feedback wrong";
+    }
+
+    document.getElementById("explanation")
+        .innerHTML = q.explanation;
+
+    document.getElementById("checkButton")
+        .classList.add("hidden");
+
+    document.getElementById("nextButton")
+        .classList.remove("hidden");
+
+    document.getElementById("progress")
+        .style.width =
+        `${((currentQuestion + 1) / questions.length) * 100}%`;
+}
+
+
+/* ---------------- FRACTION PARSER ---------------- */
+
+function parseFraction(value) {
+
+    value = value.replace(/\s/g, "");
+
+    if (value.includes("/")) {
+
+        const parts = value.split("/");
+
+        if (parts.length !== 2) return null;
+
+        const numerator = Number(parts[0]);
+        const denominator = Number(parts[1]);
+
+        if (
+            isNaN(numerator) ||
+            isNaN(denominator) ||
+            denominator === 0
+        ) {
+            return null;
+        }
+
+        const simplified =
+            simplifyFraction(numerator, denominator);
+
+        return {
+            numerator: simplified.numerator,
+            denominator: simplified.denominator
+        };
+    }
+
+    const decimal = Number(value);
+
+    if (!isNaN(decimal)) {
+
+        const denominator = 1000000;
+        const numerator = Math.round(decimal * denominator);
+
+        const simplified =
+            simplifyFraction(numerator, denominator);
+
+        return {
+            numerator: simplified.numerator,
+            denominator: simplified.denominator
+        };
+    }
+
+    return null;
+}
+
+
+/* ---------------- NEXT QUESTION ---------------- */
+
+function nextQuestion() {
+
+    if (currentQuestion < questions.length - 1) {
+
+        currentQuestion++;
+
+        showQuestion();
+
+    } else {
+
+        showResults();
+    }
+}
+
+
+/* ---------------- RESULTS ---------------- */
+
+function showResults() {
+
+    document.getElementById("quizScreen")
+        .classList.add("hidden");
+
+    document.getElementById("resultScreen")
+        .classList.remove("hidden");
+
+    const total = questions.length;
+
+    const percentage =
+        Math.round((score / total) * 100);
+
+    document.getElementById("finalScore")
+        .textContent = score;
+
+    document.getElementById("finalTotal")
+        .textContent = total;
+
+    document.getElementById("finalPercentage")
+        .textContent = `${percentage}%`;
+
+    let title;
+    let message;
+    let icon;
+
+    if (percentage >= 90) {
+
+        icon = "🏆";
+        title = "Outstanding!";
+        message =
+            "Excellent performance! Your mathematics skills are impressive.";
+
+    } else if (percentage >= 75) {
+
+        icon = "🎉";
+        title = "Great Work!";
+        message =
+            "Very good! Keep practicing to reach the next level.";
+
+    } else if (percentage >= 50) {
+
+        icon = "👍";
+        title = "Good Effort!";
+        message =
+            "You are making progress. A little more practice will help.";
+
+    } else {
+
+        icon = "💪";
+        title = "Keep Practicing!";
+        message =
+            "Don't give up. Practice regularly and you will improve.";
+    }
+
+    document.getElementById("resultIcon")
+        .textContent = icon;
+
+    document.getElementById("resultTitle")
+        .textContent = title;
+
+    document.getElementById("resultMessage")
+        .textContent = message;
+
+    const reviewSection =
+        document.getElementById("reviewSection");
+
+    const reviewList =
+        document.getElementById("reviewList");
+
+    reviewList.innerHTML = "";
+
+    if (wrongAnswers.length > 0) {
+
+        reviewSection.classList.remove("hidden");
+
+        wrongAnswers.forEach(item => {
+
+            const div =
+                document.createElement("div");
+
+            div.className = "review-item";
+
+            div.innerHTML = `
+                <strong>${item.question}</strong>
+                <div class="review-answer">
+                    Your answer: ${item.userAnswer}<br>
+                    Correct answer: ${item.correctAnswer}
+                </div>
+            `;
+
+            reviewList.appendChild(div);
+        });
+
+    } else {
+
+        reviewSection.classList.add("hidden");
+    }
+}
+
+
+/* ---------------- RESTART ---------------- */
+
+function restartQuiz() {
+
+    document.getElementById("quizScreen")
+        .classList.add("hidden");
+
+    document.getElementById("resultScreen")
+        .classList.add("hidden");
+
+    document.getElementById("setupScreen")
+        .classList.remove("hidden");
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/* ---------------- ENTER KEY ---------------- */
+
+document.getElementById("answer")
+    .addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+
+            if (!answered) {
+                checkAnswer();
+            } else {
+                nextQuestion();
+            }
+        }
+    });
+
+</script>
+
+</body>
+</html>
